@@ -1,0 +1,20 @@
+---
+# defaults file for cloudflare_ddns
+
+#
+# Docker identities
+#
+dns_container_name: "cloudflare-dns"
+dns_image_version: "latest"
+
+dns_volume_config: "/tmp"
+
+dns_domains:
+  auth:
+    scopedToken: QPExdfoNLwndJPDbt4nK1-yF1z_srC8D0m6-Gv_h
+  domains:
+  - name: foo.example.com
+    type: A
+    proxied: true
+    create: true
+    zoneId: JBFRZWzhTKtRFWgu3X7f3YLX

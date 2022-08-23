@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include ilaur.cloudflare_ddns"
+      include_role:
+        name: "ilaur.cloudflare_ddns"

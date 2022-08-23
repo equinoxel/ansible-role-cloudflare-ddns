@@ -1,0 +1,26 @@
+---
+# tasks file for cloudflare_ddns
+
+- name: Write cloudflare DDNS configuration
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ dns_volume_config }}/{{ item }}"
+    mode: '0644'
+  loop:
+    - "config.yaml"
+  tags:
+    - configuration
+
+- name: Create the Dynamic DNS container
+  docker_container:
+    name: "{{ dns_container_name }}"
+    image: "joshava/cloudflare-ddns:{{ dns_image_version }}"
+    recreate: yes
+    privileged: yes
+    volumes:
+      - "{{ dns_volume_config }}/config.yaml:/app/config.yaml:ro"
+    restart: yes
+    restart_policy: always
+  tags:
+    - exec
+  changed_when: false

@@ -27,8 +27,5 @@
       pip:
         name: 
           - requests
-    - name: debug
-      debug:
-        msg: "{{ hostvars }}"
   roles:
     - role: laurivan.cloudflare_ddns

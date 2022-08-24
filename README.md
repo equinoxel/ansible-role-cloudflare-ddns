@@ -1,38 +1,90 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+**cloudflare-ddns** - Install cloudflare DDNS docker image.
 
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role helps you push your public IP address on Cloudflare DNS, so your self-hosted sites can be accessed. 
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+This role uses the variables listed below, along with default values (see defaults/main.yml).
 
-Dependencies
-------------
+You can specify the docker container name and the image version to be used. You can also specify the docker volume where the container should store its relevant data
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+```yml
+dns_container_name: "cloudflare-dns"
+dns_image_version: "latest"
+dns_volume_config: "/tmp"
+```
+
+The `dns_domains` variable contains credentials and domain definitions. Credentials are specified like so:
+
+```yaml
+dns_domains:
+  auth:
+    scopedToken: QPExdfoNLwndJPDbt4nK1-yF1z_srC8D0m6-Gv_h
+```
+This role allows you to set up DDNS for multiple domains:
+
+```yaml
+dns_domains:
+  domains:
+  - name: foo.example.com
+    type: A
+    proxied: true
+    create: true
+    zoneId: JBFRZWzhTKtRFWgu3X7f3YLX
+  - name: bar.example.com
+    type: A
+    proxied: true
+    create: true
+    zoneId: JBFRZWzhTKtRFWgu3X7f3YLY
+```
+
+All items declared into `dns_domains` are converted to the necessary configuration file via the *config.yaml.j2* template.
+
+If you want more details on which parameters you can add to `dns_domains`, please see the [container's documentation](https://hub.docker.com/r/oznu/cloudflare-ddns/#!)
+
+
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+You can see a full example (with dummy vars too!) below. It configures two sub-domains as A records:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+- hosts: servers
+  vars:
+    dns_container_name: "cloudflare-dns"
+    dns_image_version: "latest"
+    dns_volume_config: "/tmp"
+    dns_domains:
+      auth:
+        scopedToken: QPExdfoNLwndJPDbt4nK1-yF1z_srC8D0m6-Gv_h
+      domains:
+      - name: foo.example.com
+        type: A
+        proxied: true
+        create: true
+        zoneId: JBFRZWzhTKtRFWgu3X7f3YLX
+      - name: bar.example.com
+        type: A
+        proxied: true
+        create: true
+        zoneId: JBFRZWzhTKtRFWgu3X7f3YLY
+
+  roles:
+      - 'laurivan.cloudflare_ddns'
+```
+
 
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+This role was created in 2022 by [Laur Ivan](https://www.laurivan.com).

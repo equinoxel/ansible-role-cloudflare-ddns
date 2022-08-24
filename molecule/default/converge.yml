@@ -1,7 +1,34 @@
 ---
 - name: Converge
   hosts: all
-  tasks:
-    - name: "Include ilaur.cloudflare_ddns"
-      include_role:
-        name: "ilaur.cloudflare_ddns"
+  become: true
+  vars:
+    dns_container_name: "cloudflare-dns"
+    dns_image_version: "latest"
+    dns_volume_config: "/tmp"
+    dns_domains:
+      auth:
+        scopedToken: ${MOLECULE_CF_TOKEN:-}
+      domains:
+      - name: foo.example.com
+        type: A
+        proxied: true
+        create: true
+        zoneId: ${MOLECULE_CF_ZONEID:-}
+  pre_tasks:
+    - name: create default directory
+      file:
+        path: "{{ swag_data }}/nginx/site-confs"
+        state: directory
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+    - name: Install python requests
+      pip:
+        name: 
+          - requests
+    - name: debug
+      debug:
+        msg: "{{ hostvars }}"
+  roles:
+    - role: laurivan.cloudflare_ddns

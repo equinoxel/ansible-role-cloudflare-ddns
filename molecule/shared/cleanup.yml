@@ -1,0 +1,10 @@
+---
+- name: Destroy created docker image
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: "destroy the docker container"
+      community.docker.docker_container:
+        name: "cloudflare-dns"
+        state: absent

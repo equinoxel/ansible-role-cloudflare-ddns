@@ -3,23 +3,17 @@
   hosts: all
   become: true
   vars:
-    dns_container_name: "cloudflare-dns"
-    dns_image_version: "latest"
-    dns_volume_config: "/tmp"
     dns_domains:
       auth:
-        scopedToken: ${MOLECULE_CF_TOKEN:-}
+        scopedToken: "${MOLECULE_CF_TOKEN:-}"
       domains:
-      - name: foo.example.com
+      - name: "${MOLECULE_CF_DOMAIN_NAME:-}"
         type: A
         proxied: true
         create: true
-        zoneId: ${MOLECULE_CF_ZONEID:-}
+        zoneId: "${MOLECULE_CF_ZONE_ID:-}"
+
   pre_tasks:
-    - name: create default directory
-      file:
-        path: "{{ swag_data }}/nginx/site-confs"
-        state: directory
     - name: Update apt cache.
       apt: update_cache=yes cache_valid_time=600
       when: ansible_os_family == 'Debian'
@@ -29,3 +23,7 @@
           - requests
   roles:
     - role: laurivan.cloudflare_ddns
+  post_tasks:
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      when: ansible_os_family == 'Debian'
